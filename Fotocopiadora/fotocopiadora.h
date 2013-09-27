@@ -22,7 +22,9 @@ class Fotocopiadora
 };
 
 void *Client();
+void *trabajadorFotocopiadora();
 void createClient();
 void Scheduller();
+void createWork();
 
 #endif // FOTOCOPIADORA_H

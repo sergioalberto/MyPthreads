@@ -15,12 +15,14 @@
 using std::cout;
 using std::endl;
 sem_t semInitClient;
+sem_t semEndClient;
 
 pthread_mutex_t lockTurn;
 
+
 Fotocopiadora::Fotocopiadora()
 {
-    initAll();
+
 }
 
 /**
@@ -32,10 +34,12 @@ void Fotocopiadora::insertClient(int id){
 
     if(id == 0){ // Se va a agregar un estudiante
         _StudentsQueue[_IdStudent] = thread_id;
+        cout <<thread_id<< endl;
         _IdStudent ++;
     }
     else{ // Se va a agregar un profesor
         _TeachersQueue[_IdTeacher] = thread_id;
+        cout <<thread_id<< endl;
         _IdTeacher ++;
     }
 
@@ -46,39 +50,66 @@ void Fotocopiadora::insertClient(int id){
   Clientes
   */
 void *Client(void *arg){
-    cout << "Serrgio"<< endl;
+
+    while(1){
+        cout <<" sergio "<< endl;
+    }
 }
 
 /**
-  Se crean los clientes
+  Se crean los clientes"
   */
 void createClient(){
 
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_t threadClient;
+    //cout <<threadClient<< endl;
     pthread_create(&threadClient, &attr, &Client, NULL);
     sem_post(&semInitClient); // up
 
-    pthread_join(threadClient, NULL);
+    //pthread_join(threadClient, NULL);
 }
 
 /**
   Trabajador de la fotocopiadora q va a decidir cual cliente atender
   */
-void trabajadorFotocopiadora(){
+void *trabajadorFotocopiadora(void *arg){
 
     while(1){
         sem_wait(&semInitClient); //Down
         Scheduller();
+        sem_wait(&semEndClient);
     }
 }
 
+/**
+  Se crea el trabajador de la fotocopiadora
+  */
+void createWork(){
+    pthread_attr_t attrr;
+    pthread_attr_init(&attrr);
+    pthread_t threadWork;
+    pthread_create(&threadWork, &attrr, &trabajadorFotocopiadora, NULL);
+    pthread_join(threadWork, NULL);
+}
+
+/**
+  Planificador de cual cliente atenter
+  */
 void Scheduller(){
     pthread_mutex_lock(&lockTurn);
 
     pthread_mutex_unlock(&lockTurn);
 }
+
+
+void printerPaper(){
+
+    sem_post(&semEndClient);
+    pthread_exit(NULL);
+}
+
 
 /**
   Iniciar todos los párametros
@@ -96,5 +127,11 @@ void Fotocopiadora::initAll(){
         _StudentsQueue[i] = 0;
     }
 
+    insertClient(0);
+    insertClient(2);
+    insertClient(0);
+
     pthread_mutex_init(&lockTurn,NULL);
+    createWork();
+
 }

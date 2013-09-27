@@ -18,3 +18,6 @@ HEADERS  += mainwindow.h \
     fotocopiadora.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    imagenes.qrc
