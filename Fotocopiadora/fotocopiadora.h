@@ -17,7 +17,7 @@ class Fotocopiadora
 
 };
 
-void *Client();
+void *Client(void *arg);
 void *trabajadorFotocopiadora();
 void createClient(int id, int number);
 void Scheduller();

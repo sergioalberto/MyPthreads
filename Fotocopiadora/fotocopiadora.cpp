@@ -45,7 +45,10 @@ void Fotocopiadora::insertClient(int id, int number){
 void *Client(void *arg){
 
     while(1){
-        //cout <<" sergio "<< endl;
+
+        int message;
+        message = (int) arg;
+        cout <<message<< endl;
     }
 }
 
@@ -57,10 +60,11 @@ void createClient(int id, int number){
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_t threadClient[number];
+    int thread_id = 0;
 
     for (int i=0; i < number; i++){
 
-        int thread_id = (int)syscall(__NR_gettid);
+        thread_id = (int)syscall(__NR_gettid);
 
         if(id == 0){ // Se va a agregar un estudiante
             _StudentsQueue[_IdStudent] = thread_id;
@@ -73,10 +77,13 @@ void createClient(int id, int number){
             _IdTeacher ++;
         }
 
-        pthread_create(&threadClient[i], &attr, &Client, NULL);
+        pthread_create(&threadClient[i], &attr, &Client, (void*) i);
         sem_post(&semInitClient); // up
     }
-    //pthread_join(threadClient, NULL);
+
+    //for(int i=0; i < number; i++){
+      //  pthread_join(threadClient[i], NULL);
+    //}
 }
 
 /**
