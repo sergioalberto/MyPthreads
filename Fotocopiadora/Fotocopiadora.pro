@@ -9,6 +9,7 @@ QT       += core gui
 TARGET = Fotocopiadora
 TEMPLATE = app
 
+LIBS += -pthread
 
 SOURCES += main.cpp\
         mainwindow.cpp \

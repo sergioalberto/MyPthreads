@@ -19,6 +19,7 @@ sem_t semEndClient;
 
 pthread_mutex_t lockTurn;
 int _Turno;
+int _IdThread;
 
 int _SizeClients;     // Cantidad maxima de clientes permitidos para cada fila
 int _TeachersQueue[20]; // Cola de profesores
@@ -28,7 +29,8 @@ int _IdStudent;       // Id del estudiante que esta atendiendo
 
 Fotocopiadora::Fotocopiadora()
 {
-    _Turno = 0;
+    _Turno = 10000;
+    _IdThread = 0;
 }
 
 /**
@@ -48,7 +50,11 @@ void *Client(void *arg){
 
         int message;
         message = (int) arg;
-        cout <<message<< endl;
+        //cout <<message<< endl;
+
+        if(_Turno == message){
+            printerPaper();
+        }
     }
 }
 
@@ -57,27 +63,26 @@ void *Client(void *arg){
   */
 void createClient(int id, int number){
 
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
+    //pthread_attr_t attr;
+    //pthread_attr_init(&attr);
+
     pthread_t threadClient[number];
-    int thread_id = 0;
 
     for (int i=0; i < number; i++){
 
-        thread_id = (int)syscall(__NR_gettid);
-
         if(id == 0){ // Se va a agregar un estudiante
-            _StudentsQueue[_IdStudent] = thread_id;
-            //cout <<thread_id<< endl;
+            _StudentsQueue[_IdStudent] = _IdThread;
             _IdStudent ++;
         }
         else{ // Se va a agregar un profesor
-            _TeachersQueue[_IdTeacher] = thread_id;
-            //cout <<thread_id<< endl;
+            _TeachersQueue[_IdTeacher] = _IdThread;
             _IdTeacher ++;
         }
 
-        pthread_create(&threadClient[i], &attr, &Client, (void*) i);
+        pthread_create(&threadClient[i], NULL, &Client, (void*) _IdThread);
+
+        _IdThread ++;
+        //pthread_detach(threadClient[i]);
         sem_post(&semInitClient); // up
     }
 
@@ -102,11 +107,11 @@ void *trabajadorFotocopiadora(void *arg){
   Se crea el trabajador de la fotocopiadora
   */
 void createWork(){
-    pthread_attr_t attrr;
-    pthread_attr_init(&attrr);
+    //pthread_attr_t attrr;
+    //pthread_attr_init(&attrr);
     pthread_t threadWork;
-    pthread_create(&threadWork, &attrr, &trabajadorFotocopiadora, NULL);
-    pthread_join(threadWork, NULL);
+    pthread_create(&threadWork, NULL, &trabajadorFotocopiadora, NULL);
+    //pthread_join(threadWork, NULL);
 }
 
 /**
@@ -115,12 +120,18 @@ void createWork(){
 void Scheduller(){
     pthread_mutex_lock(&lockTurn);
 
+    if (_Turno == 10000){
+        _Turno = 0;
+    }
+    else{
+        _Turno ++;
+    }
     pthread_mutex_unlock(&lockTurn);
 }
 
 
 void printerPaper(){
-
+    printf("Imprimiendo ...");
     sem_post(&semEndClient); //Up
     pthread_exit(NULL);
 }
@@ -142,9 +153,14 @@ void Fotocopiadora::initAll(){
         _StudentsQueue[i] = 0;
     }
 
+    pthread_mutex_init(&lockTurn,NULL);
+
+    sem_init(&semInitClient,0,1);
+    sem_init(&semEndClient,0,1);
+
     insertClient(0,3);
 
-    //pthread_mutex_init(&lockTurn,NULL);
-    //createWork();
+    createWork();
+    //pthread_mutex_destroy(&lockTurn); // Desinicializa el mutex
 
 }

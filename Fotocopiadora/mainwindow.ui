@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Fotocopiadora - TEC</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="imagenes.qrc">
+    <normaloff>:/imagenes/logo.png</normaloff>:/imagenes/logo.png</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QLabel" name="label">
     <property name="geometry">
