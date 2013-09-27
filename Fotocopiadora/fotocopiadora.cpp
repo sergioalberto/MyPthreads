@@ -20,6 +20,12 @@ sem_t semEndClient;
 pthread_mutex_t lockTurn;
 int _Turno;
 
+int _SizeClients;     // Cantidad maxima de clientes permitidos para cada fila
+int _TeachersQueue[20]; // Cola de profesores
+int _IdTeacher;       // Id del profesor que esta atendiendo
+int _StudentsQueue[20]; // Cola de estudiantes
+int _IdStudent;       // Id del estudiante que esta atendiendo
+
 Fotocopiadora::Fotocopiadora()
 {
     _Turno = 0;
@@ -28,22 +34,9 @@ Fotocopiadora::Fotocopiadora()
 /**
   Crea hilos de acuerdo a su id
   */
-void Fotocopiadora::insertClient(int id){
+void Fotocopiadora::insertClient(int id, int number){
 
-    int thread_id = (int)syscall(__NR_gettid);
-
-    if(id == 0){ // Se va a agregar un estudiante
-        _StudentsQueue[_IdStudent] = thread_id;
-        cout <<thread_id<< endl;
-        _IdStudent ++;
-    }
-    else{ // Se va a agregar un profesor
-        _TeachersQueue[_IdTeacher] = thread_id;
-        cout <<thread_id<< endl;
-        _IdTeacher ++;
-    }
-
-    createClient();
+    createClient(id, number);
 }
 
 /**
@@ -52,22 +45,37 @@ void Fotocopiadora::insertClient(int id){
 void *Client(void *arg){
 
     while(1){
-        cout <<" sergio "<< endl;
+        //cout <<" sergio "<< endl;
     }
 }
 
 /**
   Se crean los clientes"
   */
-void createClient(){
+void createClient(int id, int number){
 
     pthread_attr_t attr;
     pthread_attr_init(&attr);
-    pthread_t threadClient;
-    //cout <<threadClient<< endl;
-    pthread_create(&threadClient, &attr, &Client, NULL);
-    sem_post(&semInitClient); // up
+    pthread_t threadClient[number];
 
+    for (int i=0; i < number; i++){
+
+        int thread_id = (int)syscall(__NR_gettid);
+
+        if(id == 0){ // Se va a agregar un estudiante
+            _StudentsQueue[_IdStudent] = thread_id;
+            //cout <<thread_id<< endl;
+            _IdStudent ++;
+        }
+        else{ // Se va a agregar un profesor
+            _TeachersQueue[_IdTeacher] = thread_id;
+            //cout <<thread_id<< endl;
+            _IdTeacher ++;
+        }
+
+        pthread_create(&threadClient[i], &attr, &Client, NULL);
+        sem_post(&semInitClient); // up
+    }
     //pthread_join(threadClient, NULL);
 }
 
@@ -118,20 +126,18 @@ void Fotocopiadora::initAll(){
 
     _SizeClients = 20;
     _IdTeacher = 0;
-    _IdStudent = 0;
-    _TeachersQueue[_SizeClients];
-    _StudentsQueue[_SizeClients];
+    //_IdStudent = 0;
+    //_TeachersQueue[_SizeClients];
+    //_StudentsQueue[_SizeClients];
 
     for(int i=0; i < _SizeClients; i++){
         _TeachersQueue[i] = 0;
         _StudentsQueue[i] = 0;
     }
 
-    insertClient(0);
-    insertClient(2);
-    insertClient(0);
+    insertClient(0,3);
 
-    pthread_mutex_init(&lockTurn,NULL);
-    createWork();
+    //pthread_mutex_init(&lockTurn,NULL);
+    //createWork();
 
 }

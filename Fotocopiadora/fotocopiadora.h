@@ -10,20 +10,16 @@ class Fotocopiadora
         Fotocopiadora();
 
         void initAll();
-        void insertClient(int id);
+        void insertClient(int id, int number);
 
 
 
-        int _SizeClients;     // Cantidad maxima de clientes permitidos para cada fila
-        int _TeachersQueue[]; // Cola de profesores
-        int _IdTeacher;       // Id del profesor que esta atendiendo
-        int _StudentsQueue[]; // Cola de estudiantes
-        int _IdStudent;       // Id del estudiante que esta atendiendo
+
 };
 
 void *Client();
 void *trabajadorFotocopiadora();
-void createClient();
+void createClient(int id, int number);
 void Scheduller();
 void createWork();
 
