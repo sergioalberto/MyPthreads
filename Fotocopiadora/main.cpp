@@ -5,13 +5,13 @@
 int main(int argc, char *argv[])
 {
     Fotocopiadora _Fotocopiadora;
-    _Fotocopiadora.initAll();
+
 
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
 
-
+    _Fotocopiadora.initAll();
 
     return a.exec();
 }

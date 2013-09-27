@@ -53,7 +53,7 @@ void *Client(void *arg){
         //cout <<message<< endl;
 
         if(_Turno == message){
-            printerPaper();
+            printerPaper(message);
         }
     }
 }
@@ -80,9 +80,9 @@ void createClient(int id, int number){
         }
 
         pthread_create(&threadClient[i], NULL, &Client, (void*) _IdThread);
-
+        //cout <<_IdThread<< endl;
         _IdThread ++;
-        //pthread_detach(threadClient[i]);
+        pthread_detach(threadClient[i]);
         sem_post(&semInitClient); // up
     }
 
@@ -98,6 +98,7 @@ void *trabajadorFotocopiadora(void *arg){
 
     while(1){
         sem_wait(&semInitClient); //Down
+        printf("Scheduler ...");
         Scheduller();
         sem_wait(&semEndClient);
     }
@@ -130,10 +131,12 @@ void Scheduller(){
 }
 
 
-void printerPaper(){
-    printf("Imprimiendo ...");
-    sem_post(&semEndClient); //Up
+void *printerPaper(int id){
+
+    printf("Imprimiendo %d ...\n", id);
     pthread_exit(NULL);
+    sleep(1);
+    sem_post(&semEndClient); //Up
 }
 
 
@@ -155,8 +158,8 @@ void Fotocopiadora::initAll(){
 
     pthread_mutex_init(&lockTurn,NULL);
 
-    sem_init(&semInitClient,0,1);
-    sem_init(&semEndClient,0,1);
+    sem_init(&semInitClient,1,1);
+    sem_init(&semEndClient,1,1);
 
     insertClient(0,3);
 

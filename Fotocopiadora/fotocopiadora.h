@@ -19,6 +19,6 @@ void *trabajadorFotocopiadora();
 void createClient(int id, int number);
 void Scheduller();
 void createWork();
-void printerPaper();
+void *printerPaper(int id);
 
 #endif // FOTOCOPIADORA_H
