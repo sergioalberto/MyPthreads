@@ -18,11 +18,11 @@ sem_t semInitClient;
 sem_t semEndClient;
 
 pthread_mutex_t lockTurn;
-
+int _Turno;
 
 Fotocopiadora::Fotocopiadora()
 {
-
+    _Turno = 0;
 }
 
 /**
@@ -106,7 +106,7 @@ void Scheduller(){
 
 void printerPaper(){
 
-    sem_post(&semEndClient);
+    sem_post(&semEndClient); //Up
     pthread_exit(NULL);
 }
 
