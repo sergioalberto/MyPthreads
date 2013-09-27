@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<pthread.h>
+#include<semaphore.h>
 #include<linux/unistd.h>
 #include<sys/syscall.h>
 #include <unistd.h>
@@ -13,6 +14,9 @@
 
 using std::cout;
 using std::endl;
+sem_t semInitClient;
+
+pthread_mutex_t lockTurn;
 
 Fotocopiadora::Fotocopiadora()
 {
@@ -38,17 +42,42 @@ void Fotocopiadora::insertClient(int id){
     createClient();
 }
 
+/**
+  Clientes
+  */
 void *Client(void *arg){
     cout << "Serrgio"<< endl;
 }
 
+/**
+  Se crean los clientes
+  */
 void createClient(){
+
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_t threadClient;
     pthread_create(&threadClient, &attr, &Client, NULL);
+    sem_post(&semInitClient); // up
 
     pthread_join(threadClient, NULL);
+}
+
+/**
+  Trabajador de la fotocopiadora q va a decidir cual cliente atender
+  */
+void trabajadorFotocopiadora(){
+
+    while(1){
+        sem_wait(&semInitClient); //Down
+        Scheduller();
+    }
+}
+
+void Scheduller(){
+    pthread_mutex_lock(&lockTurn);
+
+    pthread_mutex_unlock(&lockTurn);
 }
 
 /**
@@ -66,4 +95,6 @@ void Fotocopiadora::initAll(){
         _TeachersQueue[i] = 0;
         _StudentsQueue[i] = 0;
     }
+
+    pthread_mutex_init(&lockTurn,NULL);
 }

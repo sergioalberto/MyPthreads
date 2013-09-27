@@ -1,6 +1,7 @@
 #ifndef FOTOCOPIADORA_H
 #define FOTOCOPIADORA_H
 #include <pthread.h>
+#include<semaphore.h>
 
 class Fotocopiadora
 {
@@ -10,7 +11,7 @@ class Fotocopiadora
 
         void initAll();
         void insertClient(int id);
-        void *Client();
+
 
 
         int _SizeClients;     // Cantidad maxima de clientes permitidos para cada fila
@@ -20,6 +21,8 @@ class Fotocopiadora
         int _IdStudent;       // Id del estudiante que esta atendiendo
 };
 
+void *Client();
 void createClient();
+void Scheduller();
 
 #endif // FOTOCOPIADORA_H
