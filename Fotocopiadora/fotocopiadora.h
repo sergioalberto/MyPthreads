@@ -14,7 +14,12 @@ class Fotocopiadora
 
 };
 
-void *Client(void *arg);
+typedef struct {
+   int Idthread;
+   int IdClient;
+} datasClient;
+
+void *Client(datasClient *message);
 void *trabajadorFotocopiadora();
 void createClient(int id, int number);
 void Scheduller();

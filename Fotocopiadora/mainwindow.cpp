@@ -31,6 +31,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
     int dato =(int) ui->spinBox2->value();
+    //cout <<dato<< endl;
     createClient(1,dato);
 }
 
