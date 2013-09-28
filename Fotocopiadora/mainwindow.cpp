@@ -2,13 +2,12 @@
 #include "ui_mainwindow.h"
 #include "fotocopiadora.h"
 #include <iostream>
+#include <QTimer>
 
 using std::cout;
 using std::endl;
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -21,6 +20,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_5->setPalette(sample_palette);
     ui->label_6->setPalette(sample_palette);
     ui->label_7->setPalette(sample_palette);
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    //timer->start();
+
 }
 
 MainWindow::~MainWindow()
@@ -39,6 +43,15 @@ void MainWindow::on_pushButton1_clicked()
 {
     int dato =(int) ui->spinBox->value();
     createClient(0,dato);
+}
+
+void MainWindow::update()
+{
+    QString studens = QString::number(getCountStudents());
+    ui->label_6->setText(studens); // Studens
+
+    QString teacher = QString::number(getCountTeacher());
+    ui->label_7->setText(teacher); // Theacher
 }
 
 /**

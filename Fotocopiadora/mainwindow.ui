@@ -173,15 +173,15 @@
      <number>19</number>
     </property>
     <property name="value">
-     <number>2</number>
+     <number>5</number>
     </property>
    </widget>
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>80</x>
       <y>140</y>
-      <width>31</width>
+      <width>81</width>
       <height>51</height>
      </rect>
     </property>
@@ -199,9 +199,9 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>560</x>
+      <x>540</x>
       <y>140</y>
-      <width>31</width>
+      <width>81</width>
       <height>51</height>
      </rect>
     </property>

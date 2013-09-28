@@ -2,6 +2,8 @@
 #define FOTOCOPIADORA_H
 #include <pthread.h>
 #include<semaphore.h>
+#include<string>
+#include<QString>
 
 class Fotocopiadora
 {
@@ -24,6 +26,8 @@ void *trabajadorFotocopiadora();
 void createClient(int id, int number);
 void Scheduller();
 void createWork();
-void *printerPaper(int id);
+void *printerPaper(datasClient _datasClient);
+int getCountTeacher();
+int getCountStudents();
 
 #endif // FOTOCOPIADORA_H

@@ -22,9 +22,9 @@ int _IdThread; // Id glogal de hilos
 
 //int _SizeClients;     // Cantidad maxima de clientes permitidos para cada fila
 QVector<int> _TeachersQueue(20);
-//int _IdTeacher;       // Id del profesor que esta atendiendo
+int _IdTeacher;       // Id del profesor que esta atendiendo
 QVector<int> _StudentsQueue(20);
-//int _IdStudent;       // Id del estudiante que esta atendiendo
+int _IdStudent;       // Id del estudiante que esta atendiendo
 
 Fotocopiadora::Fotocopiadora()
 {
@@ -32,13 +32,6 @@ Fotocopiadora::Fotocopiadora()
     _IdThread = 0;
 }
 
-/**
-  Crea hilos de acuerdo a su id
-  */
-void Fotocopiadora::insertClient(int id, int number){
-
-    createClient(id, number);
-}
 
 /**
   Clientes
@@ -54,7 +47,7 @@ void *Client(void *arg){
         printf("");
 
         if(_Turno == message->Idthread){
-            printerPaper(message->Idthread);
+            printerPaper(*message);
         }
     }
     //return (void*)(1);
@@ -64,10 +57,23 @@ void *Client(void *arg){
 /**
   Imprime lo q el cliente quiera
   */
-void *printerPaper(int id){
+void *printerPaper(datasClient _datasClient){
 
-    printf("Imprimiendo %d ...\n", id);
-    _TeachersQueue.pop_front();  // Elimina el primero de la lista
+    printf("Imprimiendo %d ...\n", _datasClient.Idthread);
+
+    int datoEnviar;
+    for(int i; i < 10000000; i++){
+        datoEnviar ++;
+    }
+
+    if (_datasClient.IdClient == 0){
+        _StudentsQueue.pop_front(); // Elimina el primero de la lista de estudiantes
+        _IdStudent --;
+    }else{
+        _TeachersQueue.pop_front();  // Elimina el primero de la lista de profes
+        _IdTeacher --;
+    }
+
     //sleep(1);
     //sem_post(&semEndClient); // Up
     sem_post(&semEndClient); // up -> aporta tickets
@@ -77,7 +83,7 @@ void *printerPaper(int id){
 
 
 /**
-  Se crean los clientes"
+  Crea hilos de acuerdo a su id y cantidad
   */
 void createClient(int id, int number){
 
@@ -94,10 +100,12 @@ void createClient(int id, int number){
         if(id == 0){ // Se va a agregar un estudiante
             _StudentsQueue.append(_IdThread);
             _datasClient[i].IdClient = 0;
+            _IdStudent ++;
         }
         else{ // Se va a agregar un profesor
             _TeachersQueue.append(_IdThread);
             _datasClient[i].IdClient = 1;
+            _IdTeacher ++;
         }
 
         pthread_create(&threadClient[i], NULL, &Client, (void*)&_datasClient[i]);
@@ -157,6 +165,8 @@ void Fotocopiadora::initAll(){
 
     _IdThread = 1;
     _Turno = 1000;
+    _IdTeacher = 0;
+    _IdStudent = 0;
 
     //_TeachersQueue[_SizeClients];
     //_StudentsQueue[_SizeClients];
@@ -171,4 +181,12 @@ void Fotocopiadora::initAll(){
     //insertClient(0,4);
     //pthread_mutex_destroy(&lockTurn); // Desinicializa el mutex
 
+}
+
+int getCountTeacher(){
+   return _IdTeacher;
+}
+
+int getCountStudents(){
+   return _IdStudent;
 }
