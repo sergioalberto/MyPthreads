@@ -4,20 +4,14 @@
 #include<stdlib.h>
 #include<pthread.h>
 #include<semaphore.h>
-#include<linux/unistd.h>
-#include<sys/syscall.h>
-#include <unistd.h>
-
-#include <QString>
 #include <iostream>
-#include <getopt.h>
 
 using std::cout;
 using std::endl;
 sem_t semInitClient;
 sem_t semEndClient;
+sem_t lockTurn;
 
-pthread_mutex_t lockTurn;
 int _Turno;
 int _IdThread;
 
@@ -29,7 +23,7 @@ int _IdStudent;       // Id del estudiante que esta atendiendo
 
 Fotocopiadora::Fotocopiadora()
 {
-    _Turno = 10000;
+    _Turno = 1000;
     _IdThread = 0;
 }
 
@@ -46,17 +40,36 @@ void Fotocopiadora::insertClient(int id, int number){
   */
 void *Client(void *arg){
 
-    while(1){
+    int message;
+    message = (int) arg;
 
-        int message;
-        message = (int) arg;
+    while(1){
         //cout <<message<< endl;
+        //if (message == 1)
+        printf("");
 
         if(_Turno == message){
             printerPaper(message);
         }
     }
+    //return (void*)(1);
 }
+
+
+/**
+  Imprime lo q el cliente quiera
+  */
+void *printerPaper(int id){
+
+    printf("Imprimiendo %d ...\n", id);
+
+    //sleep(1);
+    //sem_post(&semEndClient); // Up
+    sem_post(&semEndClient); // up -> aporta tickets
+    pthread_exit(NULL);
+    //return (void*)(1);
+}
+
 
 /**
   Se crean los clientes"
@@ -80,10 +93,8 @@ void createClient(int id, int number){
         }
 
         pthread_create(&threadClient[i], NULL, &Client, (void*) _IdThread);
-        //cout <<_IdThread<< endl;
         _IdThread ++;
-        pthread_detach(threadClient[i]);
-        sem_post(&semInitClient); // up
+        //pthread_detach(threadClient[i]);
     }
 
     //for(int i=0; i < number; i++){
@@ -97,9 +108,10 @@ void createClient(int id, int number){
 void *trabajadorFotocopiadora(void *arg){
 
     while(1){
-        sem_wait(&semInitClient); //Down
-        printf("Scheduler ...");
+        //printf("Scheduler ...");
+        sem_wait(&semInitClient); //Down -> pide tickets, sino se durme
         Scheduller();
+        sem_post(&semInitClient);
         sem_wait(&semEndClient);
     }
 }
@@ -112,6 +124,7 @@ void createWork(){
     //pthread_attr_init(&attrr);
     pthread_t threadWork;
     pthread_create(&threadWork, NULL, &trabajadorFotocopiadora, NULL);
+
     //pthread_join(threadWork, NULL);
 }
 
@@ -119,26 +132,15 @@ void createWork(){
   Planificador de cual cliente atenter
   */
 void Scheduller(){
-    pthread_mutex_lock(&lockTurn);
-
-    if (_Turno == 10000){
+    sem_wait(&lockTurn);
+    if (_Turno == 1000){
         _Turno = 0;
     }
     else{
         _Turno ++;
     }
-    pthread_mutex_unlock(&lockTurn);
+    sem_post(&lockTurn);
 }
-
-
-void *printerPaper(int id){
-
-    printf("Imprimiendo %d ...\n", id);
-    pthread_exit(NULL);
-    sleep(1);
-    sem_post(&semEndClient); //Up
-}
-
 
 /**
   Iniciar todos los párametros
@@ -147,7 +149,10 @@ void Fotocopiadora::initAll(){
 
     _SizeClients = 20;
     _IdTeacher = 0;
-    //_IdStudent = 0;
+    _IdStudent = 0;
+    _IdThread = 1;
+    _Turno = 1000;
+
     //_TeachersQueue[_SizeClients];
     //_StudentsQueue[_SizeClients];
 
@@ -156,12 +161,11 @@ void Fotocopiadora::initAll(){
         _StudentsQueue[i] = 0;
     }
 
-    pthread_mutex_init(&lockTurn,NULL);
+    sem_init(&lockTurn,0,1);
+    sem_init(&semInitClient,0,1);
+    sem_init(&semEndClient,0,1);
 
-    sem_init(&semInitClient,1,1);
-    sem_init(&semEndClient,1,1);
-
-    insertClient(0,3);
+    insertClient(0,4);
 
     createWork();
     //pthread_mutex_destroy(&lockTurn); // Desinicializa el mutex
