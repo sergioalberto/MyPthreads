@@ -1,4 +1,6 @@
 #include "fotocopiadora.h"
+#include "ui_mainwindow.h"
+#include "mainwindow.h"
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -12,9 +14,8 @@ sem_t semInitClient;
 sem_t semEndClient;
 sem_t lockTurn;
 
-int _Turno;
-int _IdThread;
-
+int _Turno;   // Cual hilo se esta atendiendo
+int _IdThread; // Id glogal de hilos
 int _SizeClients;     // Cantidad maxima de clientes permitidos para cada fila
 int _TeachersQueue[20]; // Cola de profesores
 int _IdTeacher;       // Id del profesor que esta atendiendo
@@ -165,9 +166,10 @@ void Fotocopiadora::initAll(){
     sem_init(&semInitClient,0,1);
     sem_init(&semEndClient,0,1);
 
-    insertClient(0,4);
-
+    //
     createWork();
+
+    //insertClient(0,4);
     //pthread_mutex_destroy(&lockTurn); // Desinicializa el mutex
 
 }
