@@ -29,5 +29,6 @@ void createWork();
 void *printerPaper(datasClient _datasClient);
 int getCountTeacher();
 int getCountStudents();
+int randInt(int low, int high);
 
 #endif // FOTOCOPIADORA_H
